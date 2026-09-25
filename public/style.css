@@ -40,12 +40,15 @@ body {
   overflow: hidden;
 }
 
-/* App shell: fixed-height, JS adjusts --app-height from visualViewport. */
+/* App shell: fixed-height, JS sizes it from visualViewport and counter-
+   translates by visualViewport.offsetTop so the keyboard never covers it. */
 #shell {
   height: var(--app-height, 100%);
   display: flex;
   flex-direction: column;
   padding-top: var(--safe-top);
+  transform-origin: top left;
+  will-change: transform;
 }
 
 .view { display: flex; flex-direction: column; height: 100%; min-height: 0; }
@@ -286,8 +289,6 @@ button:active { opacity: 0.8; }
   border-top: 1px solid var(--bg-elev2);
   padding: 8px 12px;
   padding-bottom: calc(8px + var(--safe-bottom));
-  transform: translateY(var(--kb-offset, 0px));
-  transition: transform 0.08s linear;
 }
 #composer-form { display: flex; align-items: flex-end; gap: 8px; }
 #composer-input {

@@ -529,36 +529,53 @@ document.getElementById("back-btn").addEventListener("click", () => {
 /* ---------------- iOS keyboard / visualViewport ---------------- */
 
 // Fixed app-shell height from the real visual viewport — never 100vh.
+// In standalone mode the layout viewport does NOT resize when the keyboard
+// opens; iOS just pans the visual viewport. So we:
+//   1. size the shell to visualViewport.height (composer sits above keyboard),
+//   2. translate the shell by visualViewport.offsetTop to undo iOS panning,
+//   3. pin window scroll to 0.
+const shellEl = document.getElementById("shell");
+let viewportRAF = 0;
+
 function applyViewport() {
   const vv = window.visualViewport;
   const h = vv ? vv.height : window.innerHeight;
   document.documentElement.style.setProperty("--app-height", `${h}px`);
-  // When keyboard opens, iOS shifts visualViewport up but pageOffset reflects
-  // it; pin the composer so it sits directly above the keyboard.
   if (vv) {
-    const overlap = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop));
-    document.documentElement.style.setProperty("--kb-offset", `${overlap > 120 ? 0 : 0}px`);
+    const offset = vv.offsetTop;
+    shellEl.style.transform = offset ? `translateY(${offset}px)` : "";
+    if (window.scrollY !== 0) window.scrollTo(0, 0);
   }
+}
+
+function scheduleViewport() {
+  cancelAnimationFrame(viewportRAF);
+  viewportRAF = requestAnimationFrame(applyViewport);
 }
 
 function setupViewport() {
   const vv = window.visualViewport;
+  applyViewport();
   if (!vv) return;
-  const handler = () => {
+  vv.addEventListener("resize", scheduleViewport);
+  vv.addEventListener("scroll", scheduleViewport);
+  window.addEventListener("orientationchange", scheduleViewport);
+  window.addEventListener("focusin", () => {
     applyViewport();
-    // Keep the focused input visible above the keyboard.
+    // Keep the focused input fully visible above the keyboard.
     const active = document.activeElement;
     if (active && (active === composerInput || active.closest?.("#approval-bar"))) {
-      requestAnimationFrame(() =>
-        active.scrollIntoView({ block: "nearest", behavior: "instant" })
-      );
+      requestAnimationFrame(() => {
+        active.scrollIntoView({ block: "nearest", behavior: "instant" });
+        applyViewport();
+      });
     }
-  };
-  vv.addEventListener("resize", handler);
-  vv.addEventListener("scroll", handler);
-  window.addEventListener("orientationchange", handler);
-  handler();
+  });
+  window.addEventListener("focusout", scheduleViewport);
 }
+
+// Safety net: some iOS versions pan the visual viewport slowly after resize.
+setInterval(applyViewport, 1000);
 
 /* ---------------- push notifications ---------------- */
 
@@ -640,4 +657,3 @@ if (store.token) {
   showView("login");
 }
 startInboxPolling();
-setInterval(applyViewport, 2000);
