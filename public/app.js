@@ -30,7 +30,6 @@ async function api(path, opts = {}) {
 
 /* ---------------- routing ---------------- */
 
-const views = { login: loginView, inbox: inboxView, chat: chatView };
 let currentSessionId = null;
 
 function showView(name) {
