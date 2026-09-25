@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Pi Companion" />
+  <meta name="theme-color" content="#101014" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+  <link rel="icon" href="/icons/icon-192.png" />
+  <link rel="stylesheet" href="/style.css" />
+  <title>Pi Companion</title>
+</head>
+<body>
+  <div id="shell">
+    <!-- Login -->
+    <div id="login-view" class="view" hidden>
+      <div class="login-card">
+        <h1>Pi Companion</h1>
+        <p class="muted">Enter your gateway token to connect.</p>
+        <input id="token-input" type="password" inputmode="text" autocomplete="off" placeholder="Gateway token" />
+        <input id="server-input" type="url" inputmode="url" autocomplete="off" placeholder="Server URL (blank = this origin)" />
+        <button id="login-btn" class="primary">Connect</button>
+        <p id="login-error" class="error" hidden></p>
+      </div>
+    </div>
+
+    <!-- Inbox -->
+    <div id="inbox-view" class="view" hidden>
+      <header class="topbar">
+        <h1>Pi Companion</h1>
+        <button id="notif-btn" class="icon-btn" title="Enable notifications">🔔</button>
+      </header>
+      <main id="inbox-scroll" class="scroll">
+        <section class="group" id="group-needs-input" hidden>
+          <h2 class="needs-input-label">Needs your input</h2>
+          <div class="cards" data-group="needs-input"></div>
+        </section>
+        <section class="group" id="group-running" hidden>
+          <h2>Running</h2>
+          <div class="cards" data-group="running"></div>
+        </section>
+        <section class="group">
+          <h2>Recent</h2>
+          <div class="cards" data-group="recent"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Chat -->
+    <div id="chat-view" class="view" hidden>
+      <header class="topbar chat-topbar">
+        <button id="back-btn" class="icon-btn" title="Back">‹</button>
+        <div class="chat-title">
+          <div id="chat-project" class="chat-project"></div>
+          <div id="chat-subtitle" class="chat-subtitle muted"></div>
+        </div>
+        <span id="chat-state" class="state-chip"></span>
+      </header>
+      <main id="transcript" class="scroll" aria-live="polite"></main>
+      <div id="approval-bar" hidden></div>
+      <footer id="composer">
+        <form id="composer-form">
+          <textarea id="composer-input" rows="1" placeholder="Message…" enterkeyhint="send"></textarea>
+          <button id="stop-btn" type="button" class="icon-btn danger" title="Interrupt" hidden>■</button>
+          <button id="send-btn" type="submit" class="primary" title="Send">↑</button>
+        </form>
+      </footer>
+    </div>
+  </div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
